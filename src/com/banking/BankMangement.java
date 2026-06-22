@@ -98,6 +98,10 @@ public class BankMangement {
                         System.out.println("Logged out successfully. Returning to main menu.");
                         break;
                     } 
+                 // Add this right under your other menu choices
+                    else if (ch == 9) {
+                        ExportService.execute(senderAc, rs.getString("cname"));
+                    }
                     else {
                         System.out.println("Invalid choice! Try again.");
                     }
