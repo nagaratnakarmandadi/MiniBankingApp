@@ -14,6 +14,7 @@ public class BankMangement {
             return false;
         }
         try {
+            // Note: The database automatically sets the 'role' to 'customer' by default
             String sql = "INSERT INTO customer(cname, balance, pass_code) VALUES (?, 1000, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, name);
@@ -46,66 +47,98 @@ public class BankMangement {
                 int senderAc = rs.getInt("ac_no");
                 int ch;
 
-                // FIXED: Create the Customer object immediately upon login
+                // 1. Build the Customer object immediately upon login
                 Customer currentCustomer = new SavingsAccount(
                     rs.getInt("ac_no"),
                     rs.getString("cname"),
                     rs.getInt("balance")
                 );
+                
+                // 2. Extract their role from the database and assign it to the object
+                currentCustomer.setRole(rs.getString("role"));
 
                 while (true) {
                     System.out.println("\n==================================");
                     System.out.println("WELCOME TO VALOR");
                     System.out.println(" Hello, " + rs.getString("cname") + "!");
+                    System.out.println(" Account Type: " + currentCustomer.getRole().toUpperCase());
                     System.out.println("==================================");
-                    System.out.println("1) Transfer Money");
-                    System.out.println("2) Deposit Cash");
-                    System.out.println("3) Withdraw Cash");
-                    System.out.println("4) View Balance");
-                    System.out.println("5) View Profile");
-                    System.out.println("6) Change Password");
-                    System.out.println("7) Transaction History");
-                    System.out.println("8) Pay a Merchant");
-                    System.out.println("9) Manage Beneficiaries");
-                    System.out.println("10) Apply for a Loan");
-                    System.out.println("11) Logout");
-                    System.out.print("Enter Choice: ");
-                    ch = Integer.parseInt(sc.readLine());
 
-                    if (ch == 1) {
-                        System.out.print("Enter Receiver's Username: ");
-                        String receiverName = sc.readLine();
-                        System.out.print("Enter Amount: ");
-                        int amt = Integer.parseInt(sc.readLine());
-                        TransferService.execute(senderAc, receiverName, amt);
-                    } else if (ch == 2) {
-                        System.out.print("Enter Amount to Deposit: ");
-                        int amt = Integer.parseInt(sc.readLine());
-                        DepositService.execute(senderAc, amt);
-                    } else if (ch == 3) {
-                        System.out.print("Enter Amount to Withdraw: ");
-                        int amt = Integer.parseInt(sc.readLine());
-                        WithdrawService.execute(senderAc, amt);
-                    } else if (ch == 4) {
-                        BalanceService.execute(senderAc);
-                    } else if (ch == 5) {
-                        ProfileService.execute(senderAc);
-                    } else if (ch == 6) {
-                        PasswordService.execute(senderAc);
-                    } else if (ch == 7) {
-                        HistoryService.execute(senderAc);
-                    } else if (ch == 8) {
-                        MerchantService.execute(senderAc);
-                    } else if (ch == 9) {
-                        // FIXED: Pass the Object to the service instead of the int
-                        BeneficiaryService.execute(currentCustomer);
-                    } else if (ch == 10) {
-                        LoanService.execute(senderAc);
-                    } else if (ch == 11) {
-                        System.out.println("Logged out successfully. Returning to main menu.");
-                        break;
+                    // --- THE FORK IN THE ROAD ---
+                    
+                    // IF THEY ARE A BUSINESS (MERCHANT):
+                    if (currentCustomer.getRole().equals("merchant")) {
+                        System.out.println("1) View Daily Sales Report");
+                        System.out.println("2) Process Customer Refund");
+                        System.out.println("3) Pay Supplier / Vendor");
+                        System.out.println("4) Logout");
+                        System.out.print("Enter Choice: ");
+                        ch = Integer.parseInt(sc.readLine());
+
+                        if (ch == 1) {
+                            System.out.println("📊 Generating business sales report... (Coming Soon)");
+                        } else if (ch == 2) {
+                            System.out.println("💸 Processing refund... (Coming Soon)");
+                        } else if (ch == 3) {
+                            System.out.println("📦 Paying supplier... (Coming Soon)");
+                        } else if (ch == 4) {
+                            System.out.println("Merchant logged out successfully.");
+                            break;
+                        } else {
+                            System.out.println("Invalid choice! Try again.");
+                        }
+
+                    // IF THEY ARE A REGULAR CUSTOMER:
                     } else {
-                        System.out.println("Invalid choice! Try again.");
+                        System.out.println("1) Transfer Money");
+                        System.out.println("2) Deposit Cash");
+                        System.out.println("3) Withdraw Cash");
+                        System.out.println("4) View Balance");
+                        System.out.println("5) View Profile");
+                        System.out.println("6) Change Password");
+                        System.out.println("7) Transaction History");
+                        System.out.println("8) Pay a Merchant");
+                        System.out.println("9) Manage Beneficiaries");
+                        System.out.println("10) Apply for a Loan");
+                        System.out.println("11) Logout");
+                        System.out.print("Enter Choice: ");
+                        ch = Integer.parseInt(sc.readLine());
+
+                        if (ch == 1) {
+                            System.out.print("Enter Receiver's Username: ");
+                            String receiverName = sc.readLine();
+                            System.out.print("Enter Amount: ");
+                            int amt = Integer.parseInt(sc.readLine());
+                            TransferService.execute(senderAc, receiverName, amt);
+                        } else if (ch == 2) {
+                            System.out.print("Enter Amount to Deposit: ");
+                            int amt = Integer.parseInt(sc.readLine());
+                            DepositService.execute(senderAc, amt);
+                        } else if (ch == 3) {
+                            System.out.print("Enter Amount to Withdraw: ");
+                            int amt = Integer.parseInt(sc.readLine());
+                            WithdrawService.execute(senderAc, amt);
+                        } else if (ch == 4) {
+                            BalanceService.execute(senderAc);
+                        } else if (ch == 5) {
+                            ProfileService.execute(senderAc);
+                        } else if (ch == 6) {
+                            PasswordService.execute(senderAc);
+                        } else if (ch == 7) {
+                            HistoryService.execute(senderAc);
+                        } else if (ch == 8) {
+                            MerchantService.execute(senderAc);
+                        } else if (ch == 9) {
+                            // Pass the Object to the service instead of the int
+                            BeneficiaryService.execute(currentCustomer);
+                        } else if (ch == 10) {
+                            LoanService.execute(senderAc);
+                        } else if (ch == 11) {
+                            System.out.println("Logged out successfully. Returning to main menu.");
+                            break;
+                        } else {
+                            System.out.println("Invalid choice! Try again.");
+                        }
                     }
                 }
                 return true;
