@@ -13,7 +13,7 @@ public class Bank {
 
 		while (true) {
 			System.out.println("\n===============================");
-			System.out.println(" Welcome to InBank ");
+			System.out.println(" Welcome to BANK OF VALOR  ");
 			System.out.println("===============================");
 			System.out.println("1) Create Account");
 			System.out.println("2) Login Account");

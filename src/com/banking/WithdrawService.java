@@ -8,14 +8,21 @@ public class WithdrawService {
         try {
             con.setAutoCommit(false);
 
-            PreparedStatement psCheck = con.prepareStatement("SELECT balance FROM customer WHERE ac_no = ?");
+            PreparedStatement psCheck = con.prepareStatement("SELECT * FROM customer WHERE ac_no = ?");
             psCheck.setInt(1, acNo);
             ResultSet rs = psCheck.executeQuery();
 
             if (rs.next()) {
-                if (rs.getInt("balance") - amount < 500) {
-                    System.out.println("Withdrawal Failed! You must maintain a minimum balance of 500.");
-                    return;
+                // THE FIX IS HERE: We changed "new Customer" to "new SavingsAccount"
+                Customer currentCustomer = new SavingsAccount(
+                    rs.getInt("ac_no"), 
+                    rs.getString("cname"), 
+                    rs.getInt("balance")
+                );
+
+                // Check the business rule using the Object
+                if (currentCustomer.getBalance() - amount < 500) {
+                    throw new InsufficientFundsException("Withdrawal Failed! You must maintain a minimum balance of 500. Your current balance is " + currentCustomer.getBalance());
                 }
             }
 
@@ -30,7 +37,10 @@ public class WithdrawService {
             psReceipt.executeUpdate();
 
             con.commit();
-            System.out.println("Withdrawal of " + amount + " was successful!");
+            System.out.println("✅ Withdrawal of " + amount + " was successful!");
+
+        } catch (InsufficientFundsException e) {
+            System.out.println("❌ Error: " + e.getMessage());
         } catch (Exception e) {
             try { con.rollback(); } catch (Exception ex) {}
             e.printStackTrace();

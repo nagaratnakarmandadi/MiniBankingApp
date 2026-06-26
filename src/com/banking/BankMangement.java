@@ -48,6 +48,7 @@ public class BankMangement {
 
                 while (true) {
                     System.out.println("\n==================================");
+                    System.out.println("WELCOME TO VALOR");
                     System.out.println(" Hello, " + rs.getString("cname") + "!");
                     System.out.println("==================================");
                     System.out.println("1) Transfer Money");
