@@ -9,25 +9,25 @@ public class BankMangement {
     static Connection con = DBConnection.getConnection();
 
     public static boolean createAccount(String name, int passCode) {
-		if (name.isEmpty() || passCode == NULL) {
-			System.out.println("All fields are required!");
-			return false;
-		}
-		try {
-			String sql = "INSERT INTO customer(cname, balance, pass_code) VALUES (?, 1000, ?)";
-			PreparedStatement ps = con.prepareStatement(sql);
-			ps.setString(1, name);
-			ps.setInt(2, passCode);
-			if (ps.executeUpdate() == 1) {
-				System.out.println("Account created successfully! You can now login.");
-				return true;
-			}
-		} catch (SQLIntegrityConstraintViolationException e) {
-			System.out.println("Username already exists! Try another one.");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return false;
+        if (name.isEmpty() || passCode == NULL) {
+            System.out.println("All fields are required!");
+            return false;
+        }
+        try {
+            String sql = "INSERT INTO customer(cname, balance, pass_code) VALUES (?, 1000, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.setInt(2, passCode);
+            if (ps.executeUpdate() == 1) {
+                System.out.println("Account created successfully! You can now login.");
+                return true;
+            }
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Username already exists! Try another one.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static boolean loginAccount(String name, int passCode) {
@@ -45,6 +45,13 @@ public class BankMangement {
             if (rs.next()) {
                 int senderAc = rs.getInt("ac_no");
                 int ch;
+
+                // FIXED: Create the Customer object immediately upon login
+                Customer currentCustomer = new SavingsAccount(
+                    rs.getInt("ac_no"),
+                    rs.getString("cname"),
+                    rs.getInt("balance")
+                );
 
                 while (true) {
                     System.out.println("\n==================================");
@@ -90,7 +97,8 @@ public class BankMangement {
                     } else if (ch == 8) {
                         MerchantService.execute(senderAc);
                     } else if (ch == 9) {
-                        BeneficiaryService.execute(senderAc);
+                        // FIXED: Pass the Object to the service instead of the int
+                        BeneficiaryService.execute(currentCustomer);
                     } else if (ch == 10) {
                         LoanService.execute(senderAc);
                     } else if (ch == 11) {

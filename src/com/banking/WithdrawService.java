@@ -13,14 +13,13 @@ public class WithdrawService {
             ResultSet rs = psCheck.executeQuery();
 
             if (rs.next()) {
-                // THE FIX IS HERE: We changed "new Customer" to "new SavingsAccount"
+                // FIXED: We build a SavingsAccount object
                 Customer currentCustomer = new SavingsAccount(
                     rs.getInt("ac_no"), 
                     rs.getString("cname"), 
                     rs.getInt("balance")
                 );
 
-                // Check the business rule using the Object
                 if (currentCustomer.getBalance() - amount < 500) {
                     throw new InsufficientFundsException("Withdrawal Failed! You must maintain a minimum balance of 500. Your current balance is " + currentCustomer.getBalance());
                 }

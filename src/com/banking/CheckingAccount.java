@@ -1,15 +1,13 @@
 package com.banking;
 
 public class CheckingAccount extends Customer {
+    public CheckingAccount(int acNo, String cname, int balance) {
+        super(acNo, cname, balance);
+    }
 
-	public CheckingAccount(int acNo, String cname, int balance) {
-		super(acNo, cname, balance);
-	}
-
-	// A Checking Account charges a ₹50 fee
-	@Override
-	public void processEndOfMonth() {
-		balance = balance - 50;
-		System.out.println("⚠️ " + cname + " (Checking) was charged a ₹50 maintenance fee. New Balance: " + balance);
-	}
+    @Override
+    public void processEndOfMonth() {
+        balance = balance - 50;
+        System.out.println("⚠️ " + cname + " (Checking) was charged a ₹50 maintenance fee. New Balance: " + balance);
+    }
 }

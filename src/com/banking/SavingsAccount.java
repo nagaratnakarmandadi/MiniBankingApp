@@ -1,12 +1,10 @@
 package com.banking;
 
 public class SavingsAccount extends Customer {
-
     public SavingsAccount(int acNo, String cname, int balance) {
         super(acNo, cname, balance);
     }
 
-    // A Savings Account adds 3% interest
     @Override
     public void processEndOfMonth() {
         int interest = (int) (balance * 0.03);
